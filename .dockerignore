@@ -1,9 +1,20 @@
+# Git
 .git
 .gitignore
-node_modules
+
+# Laravel/PHP
 vendor
 storage
 .env
-.vitepress
+
+# Node/Vite
+node_modules
 npm-debug.log
 yarn-error.log
+
+# VSCode, OS, editors, etc.
+.DS_Store
+.vscode
+
+# VitePress (or any stray folder you don’t ship)
+.vitepress
