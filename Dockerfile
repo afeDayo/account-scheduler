@@ -1,55 +1,46 @@
-# ──────────── STAGE 1: Node builds the frontend ────────────
-FROM node:18-alpine AS frontend
+# ───── STAGE 1: PHP dependencies ─────
+FROM php:8.1-fpm-alpine AS php
 
-WORKDIR /app
+WORKDIR /srv/app
 
-# Copy package files and Vite/Tailwind configs
-COPY package.json package-lock.json vite.config.js tailwind.config.js postcss.config.js ./
+# system deps + php extensions
+RUN apk add --no-cache \
+        bash \
+        oniguruma-dev \
+        libxml2-dev \
+        zip \
+        unzip \
+    && docker-php-ext-install pdo_mysql mbstring xml
 
-# Copy the entire resources directory so Vite sees:
-#  - resources/js/app.js
-#  - resources/css/app.css
-#  - any .vue files you import, etc.
-COPY resources ./resources
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-RUN npm ci
-RUN npm run build
-
-
-# ───── STAGE 2: Build your Vue (Vite) frontend ─────
+# ───── STAGE 2: Node / Build frontend ─────
 FROM node:18-alpine AS node
 
 WORKDIR /srv/app
-# copy package definition & lockfile
-COPY package.json package-lock.json vite.config.js tailwind.config.js ./
-# install JS deps
-RUN npm ci
-# copy just the assets we need to build
-# COPY resources/js resources/css resources/views .vitepress ./
-# ── after npm ci ──
-COPY resources/js resources/css resources/views ./
 
-# build to public/build
+# copy only what’s needed to install / build
+COPY package.json package-lock.json vite.config.js tailwind.config.js postcss.config.js ./
+RUN npm ci
+
+COPY resources/js resources/css resources/views ./
 RUN npm run build
 
 # ───── STAGE 3: Final image ─────
 FROM php:8.1-fpm-alpine
 
-# bring in PHP extensions again
-RUN apk add --no-cache oniguruma-dev libxml2-dev bash \
-    && docker-php-ext-install pdo pdo_mysql mbstring xml
-
 WORKDIR /srv/app
 
-# copy vendor from php stage
+# copy vendor and built frontend from previous stages
 COPY --from=php /srv/app/vendor vendor
-# copy built frontend
 COPY --from=node /srv/app/public public
-# copy the rest of your app
+
+# copy the rest of the Laravel app
 COPY . .
 
-# Ensure storage/logs is writable
-RUN chown -R www-data:www-data storage bootstrap/cache
+# expose port (if you serve via artisan serve, otherwise omit)
+EXPOSE 8000
 
-EXPOSE 9000
-CMD ["php-fpm"]
+# your production startup: serve the app
+CMD [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=8000" ]
