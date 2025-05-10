@@ -25,7 +25,10 @@ COPY package.json package-lock.json vite.config.js tailwind.config.js ./
 # install JS deps
 RUN npm ci
 # copy just the assets we need to build
-COPY resources/js resources/css resources/views .vitepress ./
+# COPY resources/js resources/css resources/views .vitepress ./
+# ── after npm ci ──
+COPY resources/js resources/css resources/views ./
+
 # build to public/build
 RUN npm run build
 
