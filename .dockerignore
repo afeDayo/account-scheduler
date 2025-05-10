@@ -1,0 +1,9 @@
+.git
+.gitignore
+node_modules
+vendor
+storage
+.env
+.vitepress
+npm-debug.log
+yarn-error.log
