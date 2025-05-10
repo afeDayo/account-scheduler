@@ -1,221 +1,189 @@
-#A simple Laravel 10 + Vue 3 application that lets you:#
+# Account Balance Increment Scheduler
 
-Set an initial account balance via a web form.
+## Overview
 
-Automatically increment that balance by 1,000 units every 5 minutes (via the Laravel scheduler).
+This is a simple full-stack application built using **Laravel 10** and **Vue 3**. The app allows users to set an initial balance, and a scheduled background task increases that balance by **1,000 units every 5 minutes**, recording each increment in a log for easy tracking.
 
-Log each increment (amount, timestamp, resulting balance) in the database.
+---
 
-View balance history in a dedicated Vue component.
+## Key Features
 
-Clear all balances or history with one click.
+-   Set an **initial account balance** using a web form
+-   Schedule background job that increments the balance automatically
+-   Log each increment with **timestamp, amount, and resulting balance**
+-   Display the **history of increments** in a user-friendly format
+-   Buttons to manually trigger increment or clear balances/history
 
-📋 Table of Contents
-Features
+---
 
-Requirements
+## Technologies Used
 
-Installation
+-   Laravel 10
+-   Vue 3 (Vite)
+-   Tailwind CSS
+-   MySQL
+-   Laravel Scheduler
 
-Environment Setup
+---
 
-Database Migrations & Seeding
+## Setup Instructions
 
-Running the Laravel Server & Scheduler
+### 1. Clone the Repository
 
-Running the Vue Frontend (Vite)
-
-Using the App
-
-Project Structure
-
-License
-
-🚀 Features
-Set Balance tab to create a new balance record
-
-Balances tab to view current balances, increment manually, or clear all
-
-History tab to view all increment log entries, or clear them
-
-Automated scheduler command increment:balances runs every 5 minutes
-
-BalanceIncrement model and balance_increments table store each run
-
-🛠 Requirements
-PHP 8.1+
-
-Composer
-
-Node.js (v16+) & npm
-
-MySQL (or other supported database)
-
-[Optional] cron or task scheduler for running Laravel’s scheduled commands
-
-🔧 Installation
-Clone the repo
-
-bash
-Copy
-Edit
+```
 git clone https://github.com/your-username/account-scheduler.git
-cd account-scheduler
-Install PHP dependencies
+```
 
-bash
-Copy
-Edit
+### 2. Install PHP and JS Dependencies
+
+```
 composer install
-Install JS dependencies
-
-bash
-Copy
-Edit
 npm install
-Initialize Tailwind CSS & Vite
-(Already configured—just ensure resources/css/app.css imports Tailwind directives.)
+```
 
-⚙️ Environment Setup
-Copy the example environment file:
+### 3. Create Environment File
 
-bash
-Copy
-Edit
+Copy `.env.example` to `.env` and update values as needed:
+
+-   Database credentials
+-   App URL
+-   Mail and queue settings (optional)
+
+```
 cp .env.example .env
-Generate the application key:
+```
 
-bash
-Copy
-Edit
+### 4. Generate Application Key
+
+```
 php artisan key:generate
-Configure your .env database settings:
+```
 
-dotenv
-Copy
-Edit
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=your_database
-DB_USERNAME=your_user
-DB_PASSWORD=your_password
+### 5. Run Migrations and Seeders
 
-APP_URL=http://localhost:8000
-Optional: If you want to seed demo data, create the database first and configure .env accordingly.
+This will create the required tables and populate dummy data:
 
-🗄 Database Migrations & Seeding
-Run migrations and seed the database:
-
-bash
-Copy
-Edit
+```
 php artisan migrate --seed
-This will create:
+```
 
-balances table
+### 6. Compile Frontend Assets
 
-balance_increments table
+```
+npm run dev       # For development
+```
 
-Seed a few demo Balance records via BalanceFactory & BalanceSeeder.
+### 7. Start the Application
 
-If you ever need to reset everything and reseed:
-
-bash
-Copy
-Edit
-php artisan migrate:refresh --seed
-🏃 Running the Laravel Server & Scheduler
-Serve Laravel on port 8000:
-
-bash
-Copy
-Edit
+```
 php artisan serve
-Schedule worker:
-Set up a cron entry (Linux/macOS) to run every minute:
+```
 
-cron
-Copy
-Edit
-* * * * * cd /path/to/account-scheduler && php artisan schedule:run >> /dev/null 2>&1
-That will trigger your command IncrementBalances every five minutes, as configured in app/Console/Kernel.php:
+The application will be accessible at:
 
-php
-Copy
-Edit
-protected function schedule(Schedule $schedule): void
-{
-    $schedule->command('increment:balances')->everyFiveMinutes();
-}
-💻 Running the Vue Frontend (Vite)
-Compile & watch your assets:
+```
+http://localhost:8000
+```
 
-bash
-Copy
-Edit
-npm run dev
-Open the Vite dev server (default http://localhost:5173/).
-Your Laravel blade template (resources/views/welcome.blade.php) already includes:
+---
 
-blade
-Copy
-Edit
-@vite('resources/css/app.css')
-@vite('resources/js/app.js')
-So when you visit http://localhost:8000, the Vue SPA will mount into <div id="app"></div>.
+## Laravel Scheduler Setup
 
-🎮 Using the App
-Visit http://localhost:8000.
+To simulate balance increment every 5 minutes:
 
-Navigate between tabs:
+### 1. Register the Command in `App\Console\Kernel.php`
 
-Set Balance: enter an amount, click Create Balance.
+Make sure the command is scheduled like this:
 
-Balances: view all balances, click Increment Balances (manual), or Clear All Balances.
+```php
+$schedule->command('balance:increment')->everyFiveMinutes();
+```
 
-History: view each automatic increment (timestamp, delta, new balance), or Clear All History.
+### 2. Run Laravel Scheduler
 
-Automated increments will run every 5 minutes if your scheduler is active.
+To run the scheduled job manually:
 
-📁 Project Structure
-arduino
-Copy
-Edit
-account-scheduler/
-├── app/
-│   ├── Console/
-│   │   └── Commands/IncrementBalances.php
-│   ├── Http/
-│   │   └── Controllers/
-│   │       ├── BalanceController.php
-│   │       └── IncrementController.php
-│   ├── Models/
-│   │   ├── Balance.php
-│   │   └── BalanceIncrement.php
-├── database/
-│   ├── factories/
-│   │   └── BalanceFactory.php
-│   ├── migrations/
-│   │   ├── xxxx_create_balances_table.php
-│   │   └── xxxx_create_balance_increments_table.php
-│   └── seeders/
-│       ├── BalanceSeeder.php
-│       └── DatabaseSeeder.php
-├── resources/
-│   ├── css/
-│   │   └── app.css          ← imports Tailwind directives
-│   └── js/
-│       ├── app.js           ← Vue app bootstrap
-│       ├── App.vue          ← main component & navigation
-│       └── components/
-│           ├── SetBalance.vue
-│           ├── BalanceList.vue
-│           └── IncrementHistory.vue
-├── routes/
-│   └── api.php              ← API routes for balances & increments
-├── vite.config.js
-├── webpack.mix.js           ← optional if using Mix
-└── README.md                ← you are here
-📝 License
-This project is open-sourced under the MIT license. Feel free to fork and customize!
+```
+php artisan schedule:work
+```
+
+For production, set up a system-level cron job:
+
+```
+* * * * * php /path/to/your/project/artisan schedule:run >> /dev/null 2>&1
+```
+
+---
+
+## Frontend Usage
+
+### Set Balance Tab
+
+-   Enter a number and click **Create Balance** to set a new balance.
+
+### Balances Tab
+
+-   See current balances, trigger manual increment, or clear balances.
+
+### History Tab
+
+-   View all increment logs with details like amount and time.
+-   Option to clear the entire history.
+
+---
+
+## Important Artisan Commands
+
+-   Migrate database:
+    php artisan migrate
+
+    ```
+
+    ```
+
+-   Seed database:
+    php artisan db:seed
+
+    ```
+
+    ```
+
+-   Migrate and seed together:
+    php artisan migrate --seed
+
+    ```
+
+    ```
+
+-   Run the background job manually:
+    php artisan balance:increment
+
+    ```
+
+    ```
+
+-   Serve the Laravel app:
+    php artisan serve
+
+    ```
+
+    ```
+
+-   Start the scheduler (for testing locally):
+    php artisan schedule:work
+    ```
+
+    ```
+
+---
+
+## Deployment Notes
+
+-   Build assets before pushing to production using `npm run build`.
+-   Ensure a cron job is set for the scheduler.
+
+---
+
+## License
+
+This project is open-source and free to use under the **MIT License**.
