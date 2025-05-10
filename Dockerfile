@@ -1,28 +1,52 @@
-# Start from official PHP image
-FROM php:8.1-fpm
+# ───── STAGE 1: Install PHP dependencies ─────
+FROM php:8.1-fpm-alpine AS php
 
-# Install system packages needed
-RUN apt-get update && apt-get install -y \
-    git zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
-    nodejs npm \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+# system deps for PHP extensions
+RUN apk add --no-cache \
+        git \
+        unzip \
+        oniguruma-dev \
+        libxml2-dev \
+        bash \
+    && docker-php-ext-install pdo pdo_mysql mbstring xml
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+WORKDIR /srv/app
 
-# Set the working directory
-WORKDIR /var/www/html
+# copy only composer metadata, install prod deps
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
 
-# Copy project files
+# ───── STAGE 2: Build your Vue (Vite) frontend ─────
+FROM node:18-alpine AS node
+
+WORKDIR /srv/app
+# copy package definition & lockfile
+COPY package.json package-lock.json vite.config.js tailwind.config.js ./
+# install JS deps
+RUN npm ci
+# copy just the assets we need to build
+COPY resources/js resources/css resources/views .vitepress ./
+# build to public/build
+RUN npm run build
+
+# ───── STAGE 3: Final image ─────
+FROM php:8.1-fpm-alpine
+
+# bring in PHP extensions again
+RUN apk add --no-cache oniguruma-dev libxml2-dev bash \
+    && docker-php-ext-install pdo pdo_mysql mbstring xml
+
+WORKDIR /srv/app
+
+# copy vendor from php stage
+COPY --from=php /srv/app/vendor vendor
+# copy built frontend
+COPY --from=node /srv/app/public public
+# copy the rest of your app
 COPY . .
 
-# Install backend and frontend dependencies, build frontend
-RUN composer install --no-dev --optimize-autoloader \
-    && npm install \
-    && npm run build
+# Ensure storage/logs is writable
+RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port
-EXPOSE 10000
-
-# Start Laravel server
-CMD php artisan migrate --force && php artisan config:cache && php artisan serve --host=0.0.0.0 --port=10000
+EXPOSE 9000
+CMD ["php-fpm"]
