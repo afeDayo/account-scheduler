@@ -1,20 +1,20 @@
-# ───── STAGE 1: Install PHP dependencies ─────
-FROM php:8.1-fpm-alpine AS php
+# ──────────── STAGE 1: Node builds the frontend ────────────
+FROM node:18-alpine AS frontend
 
-# system deps for PHP extensions
-RUN apk add --no-cache \
-        git \
-        unzip \
-        oniguruma-dev \
-        libxml2-dev \
-        bash \
-    && docker-php-ext-install pdo pdo_mysql mbstring xml
+WORKDIR /app
 
-WORKDIR /srv/app
+# Copy package files and Vite/Tailwind configs
+COPY package.json package-lock.json vite.config.js tailwind.config.js postcss.config.js ./
 
-# copy only composer metadata, install prod deps
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
+# Copy the entire resources directory so Vite sees:
+#  - resources/js/app.js
+#  - resources/css/app.css
+#  - any .vue files you import, etc.
+COPY resources ./resources
+
+RUN npm ci
+RUN npm run build
+
 
 # ───── STAGE 2: Build your Vue (Vite) frontend ─────
 FROM node:18-alpine AS node
