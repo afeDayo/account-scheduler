@@ -1,66 +1,221 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+#A simple Laravel 10 + Vue 3 application that lets you:#
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Set an initial account balance via a web form.
 
-## About Laravel
+Automatically increment that balance by 1,000 units every 5 minutes (via the Laravel scheduler).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Log each increment (amount, timestamp, resulting balance) in the database.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+View balance history in a dedicated Vue component.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Clear all balances or history with one click.
 
-## Learning Laravel
+📋 Table of Contents
+Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Requirements
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Environment Setup
 
-## Laravel Sponsors
+Database Migrations & Seeding
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Running the Laravel Server & Scheduler
 
-### Premium Partners
+Running the Vue Frontend (Vite)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+Using the App
 
-## Contributing
+Project Structure
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+License
 
-## Code of Conduct
+🚀 Features
+Set Balance tab to create a new balance record
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Balances tab to view current balances, increment manually, or clear all
 
-## Security Vulnerabilities
+History tab to view all increment log entries, or clear them
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Automated scheduler command increment:balances runs every 5 minutes
 
-## License
+BalanceIncrement model and balance_increments table store each run
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+🛠 Requirements
+PHP 8.1+
+
+Composer
+
+Node.js (v16+) & npm
+
+MySQL (or other supported database)
+
+[Optional] cron or task scheduler for running Laravel’s scheduled commands
+
+🔧 Installation
+Clone the repo
+
+bash
+Copy
+Edit
+git clone https://github.com/your-username/account-scheduler.git
+cd account-scheduler
+Install PHP dependencies
+
+bash
+Copy
+Edit
+composer install
+Install JS dependencies
+
+bash
+Copy
+Edit
+npm install
+Initialize Tailwind CSS & Vite
+(Already configured—just ensure resources/css/app.css imports Tailwind directives.)
+
+⚙️ Environment Setup
+Copy the example environment file:
+
+bash
+Copy
+Edit
+cp .env.example .env
+Generate the application key:
+
+bash
+Copy
+Edit
+php artisan key:generate
+Configure your .env database settings:
+
+dotenv
+Copy
+Edit
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_user
+DB_PASSWORD=your_password
+
+APP_URL=http://localhost:8000
+Optional: If you want to seed demo data, create the database first and configure .env accordingly.
+
+🗄 Database Migrations & Seeding
+Run migrations and seed the database:
+
+bash
+Copy
+Edit
+php artisan migrate --seed
+This will create:
+
+balances table
+
+balance_increments table
+
+Seed a few demo Balance records via BalanceFactory & BalanceSeeder.
+
+If you ever need to reset everything and reseed:
+
+bash
+Copy
+Edit
+php artisan migrate:refresh --seed
+🏃 Running the Laravel Server & Scheduler
+Serve Laravel on port 8000:
+
+bash
+Copy
+Edit
+php artisan serve
+Schedule worker:
+Set up a cron entry (Linux/macOS) to run every minute:
+
+cron
+Copy
+Edit
+* * * * * cd /path/to/account-scheduler && php artisan schedule:run >> /dev/null 2>&1
+That will trigger your command IncrementBalances every five minutes, as configured in app/Console/Kernel.php:
+
+php
+Copy
+Edit
+protected function schedule(Schedule $schedule): void
+{
+    $schedule->command('increment:balances')->everyFiveMinutes();
+}
+💻 Running the Vue Frontend (Vite)
+Compile & watch your assets:
+
+bash
+Copy
+Edit
+npm run dev
+Open the Vite dev server (default http://localhost:5173/).
+Your Laravel blade template (resources/views/welcome.blade.php) already includes:
+
+blade
+Copy
+Edit
+@vite('resources/css/app.css')
+@vite('resources/js/app.js')
+So when you visit http://localhost:8000, the Vue SPA will mount into <div id="app"></div>.
+
+🎮 Using the App
+Visit http://localhost:8000.
+
+Navigate between tabs:
+
+Set Balance: enter an amount, click Create Balance.
+
+Balances: view all balances, click Increment Balances (manual), or Clear All Balances.
+
+History: view each automatic increment (timestamp, delta, new balance), or Clear All History.
+
+Automated increments will run every 5 minutes if your scheduler is active.
+
+📁 Project Structure
+arduino
+Copy
+Edit
+account-scheduler/
+├── app/
+│   ├── Console/
+│   │   └── Commands/IncrementBalances.php
+│   ├── Http/
+│   │   └── Controllers/
+│   │       ├── BalanceController.php
+│   │       └── IncrementController.php
+│   ├── Models/
+│   │   ├── Balance.php
+│   │   └── BalanceIncrement.php
+├── database/
+│   ├── factories/
+│   │   └── BalanceFactory.php
+│   ├── migrations/
+│   │   ├── xxxx_create_balances_table.php
+│   │   └── xxxx_create_balance_increments_table.php
+│   └── seeders/
+│       ├── BalanceSeeder.php
+│       └── DatabaseSeeder.php
+├── resources/
+│   ├── css/
+│   │   └── app.css          ← imports Tailwind directives
+│   └── js/
+│       ├── app.js           ← Vue app bootstrap
+│       ├── App.vue          ← main component & navigation
+│       └── components/
+│           ├── SetBalance.vue
+│           ├── BalanceList.vue
+│           └── IncrementHistory.vue
+├── routes/
+│   └── api.php              ← API routes for balances & increments
+├── vite.config.js
+├── webpack.mix.js           ← optional if using Mix
+└── README.md                ← you are here
+📝 License
+This project is open-sourced under the MIT license. Feel free to fork and customize!
