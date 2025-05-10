@@ -13,6 +13,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+// routes/web.php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/health', function () {
+    // Optionally check DB, cache, etc.
+    return response()->json(['status' => 'OK'], 200);
 });
+
