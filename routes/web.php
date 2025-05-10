@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 // routes/web.php
 
-use Illuminate\Support\Facades\Route;
+
 
 Route::get('/health', function () {
     // Optionally check DB, cache, etc.
