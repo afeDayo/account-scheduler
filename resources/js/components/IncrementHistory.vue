@@ -24,7 +24,7 @@
                 <h3>Balance ID</h3>
                 <p>{{ inc.balance_id }}</p>
 
-                <h3>Changed</h3>
+                <h3>Increment</h3>
                 <p>
                     <IconCurrencyNaira class="w-4 h-4 mr-1" />
                     {{ inc.amount_changed }}
